@@ -1,0 +1,94 @@
+packetbeat.interfaces.device: any
+
+packetbeat.flows:
+  timeout: 30s
+  period: 10s
+  enabled: true
+
+packetbeat.protocols:
+  - type: dns
+    ports: [53]
+    include_authorities: true
+    include_additionals: true
+  - type: http
+    ports: [80, 8080, 8000, 5000, 8002, 3128]
+    send_request: true
+    send_response: true
+    include_body_for: ["application/json", "x-www-form-urlencoded"]
+  - type: tls
+    ports: [443, 8443]
+    send_certificates: false
+  - type: icmp
+    enabled: true
+  - type: tcp
+    ports: [22, 23, 21, 3389, 1433, 3306, 25, 110, 143, 993, 995]
+  - type: udp
+    ports: [123, 161, 162, 514, 53]
+
+processors:
+  # Reduce host metadata frequency to prevent log flooding
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+      cache.ttl: 5m
+      geo.name: ""
+      geo.location: ""
+      netinfo.enabled: false
+  - add_docker_metadata:
+      host: "unix:///var/run/docker.sock"
+      match_fields: ["system.process.cgroup.id"]
+      match_pids: ["process.pid", "process.parent.pid"]
+      match_source: true
+      match_source_index: 4
+      match_short_id: false
+      skip_older: true
+      cleanup_timeout: 60s
+  # Drop excessive metadata events
+  - drop_event:
+      when:
+        or:
+          - equals:
+              event.kind: "state"
+          - equals:
+              event.dataset: "host"
+          - equals:
+              event.module: "system"
+  # Add tags for better filtering
+  - add_tags:
+      tags: ["packetbeat", "network-monitoring"]
+      target: "tags"
+
+output.logstash:
+  hosts: ["logstash:5044"]
+  compression_level: 3
+  escape_html: false
+
+logging.level: info
+logging.to_files: false
+logging.to_stderr: true
+
+# Ensure we capture actual network traffic, not just metadata
+packetbeat.procs:
+  enabled: false
+
+# Disable other outputs to ensure all data goes to logstash
+output.elasticsearch:
+  enabled: false
+
+output.console:
+  enabled: false
+
+# Performance tuning
+queue.mem:
+  events: 4096
+  flush.min_events: 512
+  flush.timeout: 1s
+
+# Monitoring settings - reduce frequency
+monitoring:
+  enabled: false
+
+# HTTP endpoint for health checks
+http.enabled: false
+
+# Reduce system load
+max_procs: 1

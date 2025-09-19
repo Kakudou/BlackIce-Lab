@@ -1,0 +1,32 @@
+services:
+  squid:
+    build: .
+    container_name: squid
+    hostname: squid
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    environment:
+      TZ: Europe/Paris
+      DMZ_GATEWAY: 172.42.20.254
+    volumes:
+      - ${LAB_ROOT}/squid/ssl:/etc/squid/ssl
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.95 # Squid sits in DMZ
+      lab_mgmt:
+        ipv4_address: 172.42.42.95 # optional mgmt for logs
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    restart: unless-stopped
+
+networks:
+  lab_dmz: { external: true, name: blackice_lab_dmz }
+  lab_mgmt: { external: true, name: blackice_lab_mgmt }

@@ -1,0 +1,59 @@
+services:
+  dvwa-db:
+    image: mariadb:10.6
+    container_name: dvwa-db
+    hostname: dvwa-db
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      TZ: Europe/Paris
+      MYSQL_ROOT_PASSWORD: "rootpass"
+      MYSQL_DATABASE: dvwa
+      MYSQL_USER: dvwa
+      MYSQL_PASSWORD: dvwapass
+    volumes:
+      - dvwa_db:/var/lib/mysql
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.121
+      lab_mgmt:
+        ipv4_address: 172.42.42.121
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: dvwa
+    hostname: dvwa
+    environment:
+      TZ: Europe/Paris
+      DB_SERVER: dvwa-db
+      DB_DATABASE: dvwa
+      DB_USERNAME: dvwa
+      DB_PASSWORD: dvwapass
+    depends_on:
+      - dvwa-db
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.122
+      lab_mgmt:
+        ipv4_address: 172.42.42.122
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+volumes:
+  dvwa_db: {}
+
+networks:
+  lab_dmz:
+    external: true
+    name: blackice_lab_dmz
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

@@ -1,0 +1,30 @@
+services:
+  juice:
+    image: bkimminich/juice-shop:latest
+    container_name: juice
+    hostname: juice
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      TZ: Europe/Paris
+      NODE_ENV: unsafe
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.130
+      lab_mgmt:
+        ipv4_address: 172.42.42.130
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_dmz:
+    external: true
+    name: blackice_lab_dmz
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

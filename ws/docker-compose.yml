@@ -1,0 +1,83 @@
+services:
+  ws1:
+    build: .
+    container_name: ws1
+    hostname: ws1
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    environment:
+      TZ: Europe/Paris
+      SYSLOG_HOST: 172.42.42.10
+      SYSLOG_PORT: "514"
+      DEFAULT_GW: 172.42.10.254
+    privileged: true
+    volumes:
+      - ${LAB_ROOT}/ws/app:/app
+      - ${LAB_ROOT}/squid/ssl/:/usr/local/share/ca-certificates/squid
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    networks:
+      lab_ext:
+        ipv4_address: 172.42.10.101
+      lab_mgmt:
+        ipv4_address: 172.42.42.101
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    restart: unless-stopped
+
+  ws2:
+    build: .
+    container_name: ws2
+    hostname: ws2
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    security_opt:
+      - apparmor:unconfined
+    tmpfs:
+      - /run
+      - /run/lock
+      - /tmp
+    environment:
+      TZ: Europe/Paris
+      SYSLOG_HOST: 172.42.42.10
+      SYSLOG_PORT: "514"
+      DEFAULT_GW: 172.42.10.254
+      HTTP_PROXY: http://172.42.20.95:3128
+      http_proxy: http://172.42.20.95:3128
+      HTTPS_PROXY: http://172.42.20.95:3128
+      https_proxy: http://172.42.20.95:3128
+      NO_PROXY: localhost,127.0.0.1,172.42.0.0/16
+    volumes:
+      - ${LAB_ROOT}/ws/app:/app
+      - ${LAB_ROOT}/squid/ssl/:/usr/local/share/ca-certificates/squid
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
+    networks:
+      lab_ext:
+        ipv4_address: 172.42.10.102
+      lab_mgmt:
+        ipv4_address: 172.42.42.102
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    restart: unless-stopped
+
+networks:
+  lab_ext:
+    external: true
+    name: blackice_lab_ext
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

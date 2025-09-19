@@ -1,0 +1,7 @@
+app/
+.env
+ssl
+logs
+suri_logs
+zeek_logs
+openbas_persistent_volumes

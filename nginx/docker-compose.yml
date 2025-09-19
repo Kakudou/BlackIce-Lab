@@ -1,0 +1,33 @@
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    hostname: nginx
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      TZ: Europe/Paris
+      SYSLOG_ADDR: 172.42.42.10 # syslog (mgmt)
+      SYSLOG_PORT: "514"
+    volumes:
+      - ${LAB_ROOT}/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.100 # DMZ VIP
+      lab_mgmt:
+        ipv4_address: 172.42.42.100 # mgmt IP (for ease of admin/logging)
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_dmz:
+    external: true
+    name: blackice_lab_dmz
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

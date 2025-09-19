@@ -1,0 +1,46 @@
+server_tokens off;
+
+# top-level http block lives in default image config; we just add a server + logs here
+# logs to syslog with env-substituted addr/port
+access_log syslog:server=${SYSLOG_ADDR}:${SYSLOG_PORT},facility=local6,tag=nginx,severity=info;
+error_log  syslog:server=${SYSLOG_ADDR}:${SYSLOG_PORT},facility=local7,tag=nginx,severity=info;
+
+upstream app_static {
+    server 172.42.20.110:80;
+}
+
+upstream app_dvwa {
+    server 172.42.20.122:80;
+}
+
+upstream app_juice {
+    server 172.42.20.130:3000;
+}
+
+server {
+    listen 80 default_server;
+    server_name _;
+
+    location /healthz {
+        return 200 "ok\n";
+        add_header Content-Type text/plain;
+    }
+
+    location /dvwa/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://app_dvwa/;
+    }
+
+    location /juice/ {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://app_juice/;
+    }
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://app_static;
+    }
+}

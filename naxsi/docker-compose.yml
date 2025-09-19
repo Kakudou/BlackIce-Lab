@@ -1,0 +1,32 @@
+services:
+  naxsi:
+    image: daxio/nginx-naxsi:latest # nginx compiled with NAXSI module
+    container_name: naxsi
+    hostname: naxsi
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      TZ: Europe/Paris
+      SYSLOG_ADDR: 172.42.42.10
+      SYSLOG_PORT: "514"
+      NGINX_UPSTREAM: 172.42.20.100:80 # your existing reverse-proxy
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.90
+      lab_mgmt:
+        ipv4_address: 172.42.42.90
+    volumes:
+      - ${LAB_ROOT}/naxsi/default.conf.template:/etc/nginx/templates/default.conf.template
+      - ${LAB_ROOT}/naxsi/naxsi_core.rules:/etc/nginx/naxsi_core.rules
+      - ${LAB_ROOT}/naxsi/naxsi_custom.rules:/etc/nginx/naxsi_custom.rules
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_dmz: { external: true, name: blackice_lab_dmz }
+  lab_mgmt: { external: true, name: blackice_lab_mgmt }

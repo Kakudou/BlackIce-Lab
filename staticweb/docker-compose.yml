@@ -1,0 +1,31 @@
+services:
+  staticweb:
+    image: nginx:alpine
+    container_name: staticweb
+    hostname: staticweb
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ${LAB_ROOT}/staticweb/html:/usr/share/nginx/html
+    networks:
+      lab_dmz:
+        ipv4_address: 172.42.20.110 # DMZ app IP
+      lab_mgmt:
+        ipv4_address: 172.42.42.110
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_dmz:
+    external: true
+    name: blackice_lab_dmz
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

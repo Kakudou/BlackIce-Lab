@@ -1,0 +1,2 @@
+BasicRule wl:1000 "mz:$HEADERS_VAR:User-Agent";     # allow funky UAs
+BasicRule wl:1001 "mz:$URL:/healthz|$ARGS_VAR:_";   # ignore health checks

@@ -1,0 +1,265 @@
+services:
+  logstash:
+    build:
+      context: .
+      dockerfile: Dockerfile.logstash
+    container_name: logstash
+    hostname: logstash
+    environment:
+      TZ: Europe/Paris
+    networks:
+      lab_mgmt:
+        ipv4_address: 172.42.42.50
+    ports:
+      - "5044:5044" # beats input
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for DVWA database
+  packetbeat-dvwa-db:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-dvwa-db
+    network_mode: "container:dvwa-db"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for DVWA web application
+  packetbeat-dvwa:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-dvwa
+    network_mode: "container:dvwa"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Juice Shop
+  packetbeat-juice:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-juice
+    network_mode: "container:juice"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Nginx
+  packetbeat-nginx:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-nginx
+    network_mode: "container:nginx"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Static Web
+  packetbeat-staticweb:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-staticweb
+    network_mode: "container:staticweb"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for NAXSI WAF
+  packetbeat-naxsi:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-naxsi
+    network_mode: "container:naxsi"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Squid Proxy
+  packetbeat-squid:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-squid
+    network_mode: "container:squid"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for NFTables Firewall
+  packetbeat-nftables:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-nftables
+    network_mode: "container:nftables"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Workstation 1
+  packetbeat-ws1:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-ws1
+    network_mode: "container:ws1"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Workstation 2
+  packetbeat-ws2:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-ws2
+    network_mode: "container:ws2"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  # Packetbeat for Syslog (monitoring the syslog server itself)
+  packetbeat-syslog:
+    image: docker.elastic.co/beats/packetbeat:9.1.3
+    container_name: packetbeat-syslog
+    network_mode: "container:syslog"
+    user: packetbeat
+    privileged: true
+    cap_add:
+      - SYS_ADMIN
+      - SYS_PTRACE
+      - CAP_NET_ADMIN
+      - CAP_NET_RAW
+    environment:
+      TZ: Europe/Paris
+    volumes:
+      - ./packetbeat.yml:/usr/share/packetbeat/packetbeat.yml
+    command: --strict.perms=false -e
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

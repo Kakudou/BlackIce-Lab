@@ -1,0 +1,7 @@
+FROM docker.elastic.co/logstash/logstash:8.15.0
+
+# Install the syslog output plugin
+RUN bin/logstash-plugin install logstash-output-syslog
+
+# Copy pipeline configuration
+COPY pipeline/ /usr/share/logstash/pipeline/

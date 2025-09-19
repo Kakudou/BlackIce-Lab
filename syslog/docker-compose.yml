@@ -1,0 +1,34 @@
+volumes:
+  syslog_spool: {}
+
+services:
+  syslog:
+    image: ghcr.io/linuxserver/syslog-ng:latest
+    container_name: syslog
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    environment:
+      - TZ=Europe/Paris
+    networks:
+      lab_mgmt:
+        ipv4_address: 172.42.42.10
+    ports:
+      - "514:514/udp"
+    volumes:
+      - ${LAB_ROOT}/syslog/syslog-ng.conf:/config/syslog-ng.conf
+      - ${LAB_ROOT}/syslog/logs:/var/log/syslog
+      - ${LAB_ROOT}/syslog/app:/app
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

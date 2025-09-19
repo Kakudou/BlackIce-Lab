@@ -1,0 +1,41 @@
+services:
+  nftables:
+    build:
+      context: .
+    container_name: nftables
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - SYS_ADMIN
+      - NET_RAW
+      - SYS_PTRACE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    environment:
+      TZ: Europe/Paris
+      SYSLOG_ADDR: 172.42.42.10 # syslog on mgmt net
+    volumes:
+      - ${LAB_ROOT}/nftables/init.sh:/init.sh
+    command: ["/bin/sh", "/init.sh"]
+    networks:
+      lab_ext:
+        ipv4_address: 172.42.10.254 # ext gateway
+      lab_dmz:
+        ipv4_address: 172.42.20.254 # dmz gateway
+      lab_mgmt:
+        ipv4_address: 172.42.42.254 # mgmt address
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+networks:
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt
+  lab_ext:
+    external: true
+    name: blackice_lab_ext
+  lab_dmz:
+    external: true
+    name: blackice_lab_dmz

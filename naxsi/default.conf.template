@@ -1,0 +1,52 @@
+server_tokens off;
+
+# Ship logs to your relay
+access_log syslog:server=${SYSLOG_ADDR}:${SYSLOG_PORT},facility=local6,tag=naxsi,severity=info;
+error_log  syslog:server=${SYSLOG_ADDR}:${SYSLOG_PORT},facility=local7,tag=naxsi,severity=info;
+
+include /etc/nginx/naxsi_core.rules;
+
+upstream nginx {
+  server ${NGINX_UPSTREAM};
+  keepalive 16;
+}
+
+server {
+  listen 80 default_server;
+  server_name _;
+
+
+  # Health
+  location /healthz {
+    return 200 "waf-ok\n";
+    add_header Content-Type text/plain;
+  }
+
+  # Apply NAXSI on all proxied paths (/, /dvwa, /juice, etc.)
+  location / {
+    include /etc/nginx/naxsi_custom.rules;
+
+    SecRulesEnabled;
+    DeniedUrl "/RequestDenied";
+
+    #CheckRules, determining when naxsi needs to take action
+    CheckRule "$SQL >= 8" BLOCK;
+    CheckRule "$RFI >= 8" BLOCK;
+    CheckRule "$TRAVERSAL >= 4" BLOCK;
+    CheckRule "$EVADE >= 4" BLOCK;
+    CheckRule "$XSS >= 8" BLOCK;
+    CheckRule "$UWA >= 8" BLOCK;
+    CheckRule "$UPLOAD >= 4" BLOCK;
+    CheckRule "$ATTACK >= 6" BLOCK;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_pass http://nginx;
+  }
+
+  # Soft landing page if/when we switch to blocking
+  location = /RequestDenied {
+    return 403 "naxsi: request denied\n";
+    add_header Content-Type text/plain;
+  }
+}
