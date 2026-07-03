@@ -5,8 +5,11 @@ services:
       dockerfile: Dockerfile.logstash
     container_name: logstash
     hostname: logstash
+    env_file:
+      - ../.env
     environment:
       TZ: Europe/Paris
+      SIEM_ELASTIC_PASSWORD: ${SIEM_ELASTIC_PASSWORD}
     networks:
       lab_mgmt:
         ipv4_address: 172.42.42.50

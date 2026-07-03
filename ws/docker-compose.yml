@@ -3,6 +3,7 @@ services:
     build: .
     container_name: ws1
     hostname: ws1
+    cgroup: host
     cap_add:
       - NET_ADMIN
       - SYS_ADMIN
@@ -19,6 +20,8 @@ services:
       SYSLOG_HOST: 172.42.42.10
       SYSLOG_PORT: "514"
       DEFAULT_GW: 172.42.10.254
+      XDG_RUNTIME_DIR: /run/user/0
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/0/bus
     privileged: true
     volumes:
       - ${LAB_ROOT}/ws/app:/app
@@ -38,6 +41,7 @@ services:
     build: .
     container_name: ws2
     hostname: ws2
+    cgroup: host
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -60,6 +64,8 @@ services:
       HTTPS_PROXY: http://172.42.20.95:3128
       https_proxy: http://172.42.20.95:3128
       NO_PROXY: localhost,127.0.0.1,172.42.0.0/16
+      XDG_RUNTIME_DIR: /run/user/0
+      DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/0/bus
     volumes:
       - ${LAB_ROOT}/ws/app:/app
       - ${LAB_ROOT}/squid/ssl/:/usr/local/share/ca-certificates/squid

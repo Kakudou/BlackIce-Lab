@@ -149,7 +149,8 @@ docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 | **Static Web** | http://172.42.20.90/ | - |
 | **DVWA** | http://172.42.20.90/dvwa/ | admin/password |
 | **Juice Shop** | http://172.42.20.90/juice/ | - |
-| **OpenAEV** | http://127.0.0.1:8080 | contact@kakudou.org/kakudou |
+| **OpenAEV** | http://127.0.0.1:8080 | .env |
+| **Kibana** | http://127.0.0.1:5601 | elastic/ChangeMe |
 
 ## Service Details
 

@@ -11,10 +11,10 @@ create-net:
 	@echo "BlackIce Lab networks ready."
 
 
-lab-start: syslog-start nftables-start squid-start nginx-start staticweb-start dvwa-start juice-start naxsi-start ws-start openaev-start packetbeat-start
+lab-start: syslog-start nftables-start squid-start nginx-start staticweb-start dvwa-start juice-start naxsi-start ws-start openaev-start elastic-siem-start packetbeat-start
 	@echo "Labs started."
 
-lab-stop: packetbeat-stop openaev-stop squid-stop nginx-stop staticweb-stop dvwa-stop juice-stop naxsi-stop ws-stop nftables-stop syslog-stop network-stop
+lab-stop: packetbeat-stop elastic-siem-stop openaev-stop squid-stop nginx-stop staticweb-stop dvwa-stop juice-stop naxsi-stop ws-stop nftables-stop syslog-stop network-stop
 	@echo "Lab stopped."
 
 syslog-start: network-start
@@ -108,7 +108,7 @@ squid-start: network-start
 squid-stop:
 	@echo "Stopping Squid Proxy..."
 	@LAB_ROOT=$$(pwd) docker compose -f ./squid/docker-compose.yml down
-	@rm ./squid/ssl/* 2>/dev/null || true
+	@sudo rm ./squid/ssl/*
 	@echo "Squid Proxy stopped."
 
 openaev-start: network-start
@@ -121,14 +121,39 @@ openaev-stop:
 	@LAB_ROOT=$$(pwd) docker compose -f ./openaev/docker-compose.yml down
 	@echo "OpenAEV stopped."
 
+elastic-siem-start: network-start
+	@echo "Starting Elastic SIEM..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml up -d
+	@echo "Elastic SIEM started."
+
+elastic-siem-stop:
+	@echo "Stopping Elastic SIEM..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml down
+	@echo "Elastic SIEM stopped."
+
+traffic-start: network-start
+	@echo "Starting traffic injector..."
+	@docker compose -p blackice-traffic -f ./elastic_siem/docker-compose.traffic.yml up -d --build
+	@echo "Traffic injector running (logs: docker logs -f traffic-injector)"
+
+traffic-stop:
+	@echo "Stopping traffic injector..."
+	@docker compose -p blackice-traffic -f ./elastic_siem/docker-compose.traffic.yml down
+	@echo "Traffic injector stopped."
+
+siem-generate-traffic:
+	@echo "Generating synthetic traffic for SIEM..."
+	@./elastic_siem/generate-traffic.sh 3 1
+	@echo "Traffic generation complete. Alerts should appear within 5 minutes."
+
 packetbeat-start:
 	@echo "Starting Packetbeat monitoring on all containers..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./packetbeat/docker-compose.yml up -d
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-packetbeat --env-file .env -f ./packetbeat/docker-compose.yml up -d
 	@echo "Packetbeat monitoring started."
 
 packetbeat-stop:
 	@echo "Stopping Packetbeat monitoring..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./packetbeat/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-packetbeat --env-file .env -f ./packetbeat/docker-compose.yml down
 	@echo "Packetbeat monitoring stopped."
 
 network-start: create-net

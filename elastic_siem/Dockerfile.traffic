@@ -1,0 +1,14 @@
+FROM alpine:3.19
+
+RUN apk add --no-cache \
+    bash \
+    curl \
+    bind-tools \
+    iputils \
+    netcat-openbsd \
+    coreutils
+
+COPY traffic-loop.sh /usr/local/bin/traffic-loop.sh
+RUN chmod +x /usr/local/bin/traffic-loop.sh
+
+ENTRYPOINT ["/usr/local/bin/traffic-loop.sh"]

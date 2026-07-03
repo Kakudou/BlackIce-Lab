@@ -1,0 +1,29 @@
+services:
+  traffic-injector:
+    build:
+      context: .
+      dockerfile: Dockerfile.traffic
+    container_name: traffic-injector
+    hostname: traffic-injector
+    environment:
+      MIN_DELAY: "3"
+      MAX_DELAY: "12"
+      BURST_MIN: "1"
+      BURST_MAX: "4"
+      STARTUP_DELAY: "10"
+    networks:
+      lab_mgmt:
+        ipv4_address: 172.42.42.62
+      lab_ext: {}
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options: { max-size: "5m", max-file: "3" }
+
+networks:
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt
+  lab_ext:
+    external: true
+    name: blackice_lab_ext
