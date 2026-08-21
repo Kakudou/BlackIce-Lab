@@ -122,13 +122,31 @@ openaev-stop:
 	@echo "OpenAEV stopped."
 
 elastic-siem-start: network-start
-	@echo "Starting Elastic SIEM..."
-	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml up -d
+	@echo "Starting Elasticsearch..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml up -d --wait elasticsearch
+	@echo "Creating Kibana service token..."
+	@set -eu; \
+		password=$$(sed -n 's/^SIEM_ELASTIC_PASSWORD=//p' .env | head -n 1); \
+		[ -n "$$password" ] || { echo "SIEM_ELASTIC_PASSWORD is missing from .env" >&2; exit 1; }; \
+		curl -sf -u "elastic:$$password" -X DELETE \
+			http://localhost:9200/_security/service/elastic/kibana/credential/token/kibana-siem-token \
+			>/dev/null || true; \
+		token=$$(curl -sf -u "elastic:$$password" -X POST \
+			http://localhost:9200/_security/service/elastic/kibana/credential/token/kibana-siem-token \
+			| python3 -c 'import json, sys; print(json.load(sys.stdin)["token"]["value"])'); \
+		[ -n "$$token" ] || { echo "Kibana service token creation failed" >&2; exit 1; }; \
+		if grep -q '^SIEM_KIBANA_SERVICE_TOKEN=' .env; then \
+			sed -i "s|^SIEM_KIBANA_SERVICE_TOKEN=.*|SIEM_KIBANA_SERVICE_TOKEN=$$token|" .env; \
+		else \
+			printf 'SIEM_KIBANA_SERVICE_TOKEN=%s\n' "$$token" >> .env; \
+		fi
+	@echo "Starting Kibana..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml up -d --no-deps kibana
 	@echo "Elastic SIEM started."
 
 elastic-siem-stop:
 	@echo "Stopping Elastic SIEM..."
-	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml down -v
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml down
 	@echo "Elastic SIEM stopped."
 
 traffic-start: network-start
