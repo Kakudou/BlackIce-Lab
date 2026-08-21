@@ -8,6 +8,8 @@ services:
     environment:
       discovery.type: single-node
       xpack.security.enabled: "true"
+      xpack.reporting.encryptionKey: "AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS1zaWVtLXRva2VuOjEyMm5EUkxPUTZhYzZuSHNnSnR3d3c"
+      xpack.security.encryptionKey: "AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS1zaWVtLXRva2VuOjEyMm5EUkxPUTZhYzZuSHNnSnR3d3c"
       xpack.security.http.ssl.enabled: "false"
       ELASTIC_PASSWORD: ${SIEM_ELASTIC_PASSWORD}
       ES_JAVA_OPTS: "-Xms${SIEM_ELASTIC_MEMORY_SIZE} -Xmx${SIEM_ELASTIC_MEMORY_SIZE}"
@@ -48,7 +50,8 @@ services:
       - ../.env
     environment:
       ELASTICSEARCH_HOSTS: http://172.42.42.60:9200
-      ELASTICSEARCH_SERVICEACCOUNTTOKEN: ${SIEM_KIBANA_SERVICE_TOKEN}
+      ELASTICSEARCH_USERNAME: kibana_si
+      ELASTICSEARCH_PASSWORD: ${SIEM_KIBANA_SI_PASSWORD}
       TZ: Europe/Paris
     volumes:
       - ./kibana.yml:/usr/share/kibana/config/kibana.yml:ro
