@@ -2,3 +2,5 @@ server.host: "0.0.0.0"
 server.shutdownTimeout: "5s"
 monitoring.ui.container.elasticsearch.enabled: true
 xpack.encryptedSavedObjects.encryptionKey: "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456"
+xpack.reporting.encryptionKey: "AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS1zaWVtLXRva2VuOjEyMm5EUkxPUTZhYzZuSHNnSnR3d3c"
+xpack.security.encryptionKey: "AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS1zaWVtLXRva2VuOjEyMm5EUkxPUTZhYzZuSHNnSnR3d3c"

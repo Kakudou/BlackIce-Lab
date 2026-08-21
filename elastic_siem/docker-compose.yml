@@ -72,4 +72,5 @@ networks:
 
 volumes:
   elastic_siem_data:
+    name: elastic_siem_elastic_siem_data
     driver: local
