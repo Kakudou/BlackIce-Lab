@@ -24,7 +24,7 @@ syslog-start: network-start
 
 syslog-stop:
 	@echo "Stopping syslog server..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./syslog/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./syslog/docker-compose.yml down -v
 	@echo "Syslog server stopped."
 	@echo "Clearing syslog data..."
 	@rm -f ./syslog/logs/* 2>/dev/null || true
@@ -37,7 +37,7 @@ nftables-start: network-start
 
 nftables-stop:
 	@echo "Stopping nftables container..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./nftables/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./nftables/docker-compose.yml down -v
 	@echo "nftables container stopped."
 
 ws-start: network-start
@@ -47,7 +47,7 @@ ws-start: network-start
 
 ws-stop:
 	@echo "Stopping workstation 1 and 2..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./ws/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./ws/docker-compose.yml down -v
 	@echo "Workstations stopped."
 
 nginx-start: network-start
@@ -57,7 +57,7 @@ nginx-start: network-start
 
 nginx-stop:
 	@echo "Stopping nginx server..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./nginx/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./nginx/docker-compose.yml down -v
 	@echo "nginx server stopped."
 
 staticweb-start: network-start
@@ -67,7 +67,7 @@ staticweb-start: network-start
 
 staticweb-stop:
 	@echo "Stopping static web server..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./staticweb/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./staticweb/docker-compose.yml down -v
 	@echo "Static web server stopped."
 
 dvwa-start: network-start
@@ -77,7 +77,7 @@ dvwa-start: network-start
 
 dvwa-stop:
 	@echo "Stopping DVWA and database..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./dvwa/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./dvwa/docker-compose.yml down -v
 	@echo "DVWA stopped."
 
 juice-start: network-start
@@ -87,7 +87,7 @@ juice-start: network-start
 
 juice-stop:
 	@echo "Stopping Juice Shop..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./juice/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./juice/docker-compose.yml down -v
 	@echo "Juice Shop stopped."
 
 naxsi-start: network-start
@@ -97,7 +97,7 @@ naxsi-start: network-start
 
 naxsi-stop:
 	@echo "Stopping NAXSI WAF..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./naxsi/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./naxsi/docker-compose.yml down -v
 	@echo "NAXSI WAF stopped."
 
 squid-start: network-start
@@ -107,7 +107,7 @@ squid-start: network-start
 
 squid-stop:
 	@echo "Stopping Squid Proxy..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./squid/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./squid/docker-compose.yml down -v
 	@sudo rm ./squid/ssl/*
 	@echo "Squid Proxy stopped."
 
@@ -118,7 +118,7 @@ openaev-start: network-start
 
 openaev-stop:
 	@echo "Stopping OpenAEV..."
-	@LAB_ROOT=$$(pwd) docker compose -f ./openaev/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -f ./openaev/docker-compose.yml down -v
 	@echo "OpenAEV stopped."
 
 elastic-siem-start: network-start
@@ -128,7 +128,7 @@ elastic-siem-start: network-start
 
 elastic-siem-stop:
 	@echo "Stopping Elastic SIEM..."
-	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-siem --env-file .env -f ./elastic_siem/docker-compose.yml down -v
 	@echo "Elastic SIEM stopped."
 
 traffic-start: network-start
@@ -138,7 +138,7 @@ traffic-start: network-start
 
 traffic-stop:
 	@echo "Stopping traffic injector..."
-	@docker compose -p blackice-traffic -f ./elastic_siem/docker-compose.traffic.yml down
+	@docker compose -p blackice-traffic -f ./elastic_siem/docker-compose.traffic.yml down -v
 	@echo "Traffic injector stopped."
 
 siem-generate-traffic:
@@ -153,7 +153,7 @@ packetbeat-start:
 
 packetbeat-stop:
 	@echo "Stopping Packetbeat monitoring..."
-	@LAB_ROOT=$$(pwd) docker compose -p blackice-packetbeat --env-file .env -f ./packetbeat/docker-compose.yml down
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-packetbeat --env-file .env -f ./packetbeat/docker-compose.yml down -v
 	@echo "Packetbeat monitoring stopped."
 
 network-start: create-net
