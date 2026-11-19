@@ -11,11 +11,21 @@ create-net:
 	@echo "BlackIce Lab networks ready."
 
 
-lab-start: syslog-start nftables-start squid-start nginx-start staticweb-start dvwa-start juice-start naxsi-start ws-start openaev-start elastic-siem-start packetbeat-start
+lab-start: syslog-start nftables-start squid-start nginx-start staticweb-start dvwa-start juice-start naxsi-start ws-start openaev-start elastic-siem-start splunk-start packetbeat-start
 	@echo "Labs started."
 
-lab-stop: packetbeat-stop elastic-siem-stop openaev-stop squid-stop nginx-stop staticweb-stop dvwa-stop juice-stop naxsi-stop ws-stop nftables-stop syslog-stop network-stop
+lab-stop: packetbeat-stop splunk-stop elastic-siem-stop openaev-stop squid-stop nginx-stop staticweb-stop dvwa-stop juice-stop naxsi-stop ws-stop nftables-stop syslog-stop network-stop
 	@echo "Lab stopped."
+
+splunk-start: network-start
+	@echo "Starting Splunk..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-splunk --env-file .env -f ./splunk/docker-compose.yml up -d --wait
+	@echo "Splunk started. Web http://127.0.0.1:8000 (admin / SPLUNK_PASSWORD), REST https://127.0.0.1:8089, index=blackice"
+
+splunk-stop:
+	@echo "Stopping Splunk..."
+	@LAB_ROOT=$$(pwd) docker compose -p blackice-splunk --env-file .env -f ./splunk/docker-compose.yml down
+	@echo "Splunk stopped."
 
 syslog-start: network-start
 	@echo "Starting syslog server..."
@@ -27,7 +37,7 @@ syslog-stop:
 	@LAB_ROOT=$$(pwd) docker compose -f ./syslog/docker-compose.yml down -v
 	@echo "Syslog server stopped."
 	@echo "Clearing syslog data..."
-	@rm -f ./syslog/logs/* 2>/dev/null || true
+#	@rm -f ./syslog/logs/* 2>/dev/null || true
 	@echo "Syslog data cleared."
 
 nftables-start: network-start
@@ -108,7 +118,7 @@ squid-start: network-start
 squid-stop:
 	@echo "Stopping Squid Proxy..."
 	@LAB_ROOT=$$(pwd) docker compose -f ./squid/docker-compose.yml down -v
-	@sudo rm ./squid/ssl/*
+#	@sudo rm ./squid/ssl/*
 	@echo "Squid Proxy stopped."
 
 openaev-start: network-start

@@ -1,0 +1,31 @@
+services:
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    hostname: splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD}
+      TZ: UTC
+    ports:
+      - "8000:8000" # Web UI
+      - "8089:8089" # REST / management API (used by the OpenAEV collector)
+    volumes:
+      - ${LAB_ROOT}/splunk/apps/blackice_lab:/opt/splunk/etc/apps/blackice_lab
+      - splunk_var:/opt/splunk/var
+    networks:
+      lab_mgmt:
+        ipv4_address: 172.42.42.30
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+    restart: unless-stopped
+
+volumes:
+  splunk_var: {}
+
+networks:
+  lab_mgmt:
+    external: true
+    name: blackice_lab_mgmt

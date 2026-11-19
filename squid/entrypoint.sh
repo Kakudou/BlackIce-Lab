@@ -37,6 +37,11 @@ if [ ! -s /etc/squid/ssl/ca.key ] || [ ! -s /etc/squid/ssl/ca.pem ]; then
   chown proxy:proxy /etc/squid/ssl/ca.key /etc/squid/ssl/ca.pem
   cat /etc/squid/ssl/ca.pem /etc/squid/ssl/ca.key >> /etc/squid/ssl/ca-key-cert.pem
   chown proxy:proxy /etc/squid/ssl/ca-key-cert.pem
+fi
+
+# The ssl_db lives in the container, the CA in the bind mount: a new container
+# that reuses an existing CA still needs its own ssl_db, or squid exits at start.
+if [ ! -d /var/spool/squid/ssl_db ]; then
   su -s /bin/sh -c "/usr/lib/squid/security_file_certgen -c -s /var/spool/squid/ssl_db -M 8MB" proxy
 fi
 
